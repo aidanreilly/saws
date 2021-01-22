@@ -66,7 +66,7 @@ function add_params()
   	cs_CUT = controlspec.new(50,5000,'exp',0,800,'hz')
   	params:add{type="control", id="cutoff" .. i, name="cutoff " .. i, controlspec=cs_CUT, action=function(x) set_filt_cutoff(i - 1, x) end}
 
-		cs_GAIN = controlspec.new(0.0,4.0,'lin',0.0,0.2,'')
+		cs_GAIN = controlspec.new(0.0,4.0,'lin',0.0,0.1,'')
   	params:add{type="control", name="resonance " .. i, id="gain", controlspec=cs_GAIN, action=function(x) set_filt_gain(i -1, x) end}
 
 		params:add_control("attack" .. i, "env attack " .. i, controlspec.new(0.01, 15.0, 'lin', 0.01, 1.0,'s'))
