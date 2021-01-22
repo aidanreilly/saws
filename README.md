@@ -6,7 +6,9 @@ A simple saw wave drone synth with 16 independant saw waves. Each voice is made 
 
 ## Installation
 
-Ensure you are up to date with the latest norns OS. Visit http://norns.local/ in a browser, and install saws from the maiden project manager.
+Ensure you are up to date with the latest norns OS. Visit http://norns.local/ in a browser, and install saws by entering the following in the maiden REPL: 
+
+`;install https://github.com/aidanreilly/saws`
 
 Then, `SYSTEM => RESET` on norns to pick up the new SuperCollider engine. Reboot for good measure.
 
@@ -23,7 +25,7 @@ Controls:
 * [K2] + [E2] change note
 * [K2] + [E3] detune
 * [K3] + [E2] change envelope
-* [K3] + [E3] change wavefolder
+* [K3] + [E3] change filter cutoff
 * [K1] + [E2] - change sample rate
 * [K1] + [E3] - change bit depth
 * [K2] + [K3] toggle voice pannning between 'middle' and odd numbered voices hard left, even numbered voices hard right. 
@@ -32,5 +34,5 @@ Saving a pset saves the note selection and midi mapping. The last saved pset is 
 
 ### Optional
 
-Control individual saw amplitudes, envelopes, bit depth, sample rate, and wavefolder amount with a midi controller. Controls are mapped from the norns parameters page.
+Control individual saw amplitudes, envelopes, bit depth, sample rate, and filter cutoff with a midi controller. Controls are mapped from the norns parameters page.
 
