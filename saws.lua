@@ -14,10 +14,29 @@
 local sliders = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 local edit = 1
 local accum = 1
-local value = 0
-local text = " "
+-- env_name, env_bias, attack, decay. bias of 1.0 is used to create a static drone
+local envs = {{"drone", 1.0, 1.0, 1.0},
+{"am1", 0.0, 0.001, 0.01},
+{"am2", 0.0, 0.001, 0.02},
+{"am3", 0.3, 0.001, 0.05},
+{"pulse1", 0.0, 0.001, 0.2},
+{"pulse2", 0.0, 0.001, 0.5},
+{"pulse3", 0.0, 0.001, 0.8},
+{"pulse4", 0.3, 0.001, 1.0},
+{"ramp1", 0.0, 1.5, 0.01},
+{"ramp2", 0.0, 2.0, 0.01},
+{"ramp3", 0.0, 3.0, 0.01},
+{"ramp4", 0.3, 4.0, 0.01},
+{"evolve1", 0.3, 10.0, 10.0},
+{"evolve2", 0.3, 15.0, 11.0},
+{"evolve3", 0.3, 20.0, 12.0},
+{"evolve4", 0.4, 25.0, 15.0}
+}
+local env_values = {}
 local env_edit = 1
 local env_accum = 1
+local value = 0
+local text = " "
 local step = 0
 local cents = {}
 local notes = {}
@@ -36,6 +55,7 @@ function init()
 	add_params()
 	edit = 0
 	for i = 1,16 do
+		env_values[i] = params:get("env" .. i)
 		cents[i] = params:get("cents" .. i)
 		sliders[i] = (params:get("vol" .. i))*32
 	end
@@ -54,7 +74,7 @@ function add_params()
 	action = function() set_notes() end}
 	--set voice params
 	for i = 1,16 do
-		params:add_group("voice " .. i .. " params", 11)
+		params:add_group("voice " .. i .. " params", 12)
 		--set voice vols
 		params:add_control("vol" .. i, "vol " .. i, controlspec.new(0.0, 1.0, 'lin', 0.01, 0.0))
 		params:set_action("vol" .. i, function(x) set_vol(i - 1, x) end)
@@ -68,6 +88,7 @@ function add_params()
 
 		cs_GAIN = controlspec.new(0.0,4.0,'lin',0.0,0.1,'')
   	params:add{type="control", name="resonance " .. i, id="gain", controlspec=cs_GAIN, action=function(x) set_filt_gain(i -1, x) end}
+		params:add{type = "number", id = "env" ..i, name = "env " .. i, min = 1, max = 16, default = 1, formatter = function(param) return env_formatter(param:get()) end, action = function(x) set_env(i, x) end}
 
 		params:add_control("attack" .. i, "env attack " .. i, controlspec.new(0.01, 15.0, 'lin', 0.01, 1.0,'s'))
 		params:set_action("attack" .. i, function(x) set_amp_atk(i - 1, x) end)
@@ -137,6 +158,18 @@ function tune(synth_num, value)
 	set_freq(synth_num, detuned_freq)
 	edit = synth_num
 	redraw()
+end
+
+function set_env(synth_num, value)
+	--env_name, env_bias, attack, decay
+	params:set("env_bias" .. synth_num, envs[value][2])
+	params:set("attack" .. synth_num, envs[value][3])
+	params:set("decay" .. synth_num, envs[value][4])
+end
+
+function env_formatter(value)
+	local env_name = envs[value][1]
+	return (env_name)
 end
 
 function set_filt_gain(synth_num, value)
@@ -259,8 +292,7 @@ function enc(n, delta)
 			edit = accum
 
 		elseif key_1_pressed == 0 and key_2_pressed == 0 and key_3_pressed == 1 then
-			params:set("attack" .. edit+1,  params:get("attack" .. edit+1) + delta * 0.1)
-			params:set("decay" .. edit+1,  params:get("decay" .. edit+1) + delta * 0.1)
+			params:set("env" .. edit+1, params:get("env" .. edit+1) + delta)
 
 		elseif key_1_pressed == 0 and key_2_pressed == 1 and key_3_pressed == 0 then
 			-- increment the note value with delta
@@ -345,9 +377,9 @@ function redraw()
 	screen.text(params:get("cents" .. edit+1) .. " cents")
 	screen.move(0,12)
 	screen.level(2)
-	screen.text("a/d: ")
+	screen.text("env: ")
 	screen.level(15)
-	screen.text(params:get("attack" .. edit+1) .. "/" ..  params:get("decay" .. edit+1) .. " s")
+	screen.text(env_formatter(params:get("env" .. edit+1)))
 	screen.level(2)
 	screen.text(" lpf:")
 	screen.level(15)
